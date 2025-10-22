@@ -1,0 +1,7 @@
+digraph "packages" {
+rankdir=BT
+charset="utf-8"
+"TEMPLATE" [color="#77AADD", label=<TEMPLATE>, shape="box", style="filled"];
+"TEMPLATE._version" [color="#77AADD", label=<TEMPLATE._version>, shape="box", style="filled"];
+"TEMPLATE.main" [color="#77AADD", label=<TEMPLATE.main>, shape="box", style="filled"];
+}

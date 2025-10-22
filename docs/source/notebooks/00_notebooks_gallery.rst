@@ -1,0 +1,5 @@
+Notebook Gallery
+==================
+
+.. nbgallery::
+   example

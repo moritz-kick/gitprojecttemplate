@@ -1,0 +1,160 @@
+exclude: "_version.py" # File for setuptools_scm
+
+default_language_version: # Markdownlint may use old node version.
+    node: latest
+
+repos:
+
+# ----------------------------------------------------------------------------
+
+- repo: https://github.com/pre-commit/pre-commit-hooks
+  # Pre-Commit Out-of-the-box hooks.
+  rev: v5.0.0
+  hooks:
+  - id: check-added-large-files
+    args: ["--maxkb=3000"]
+  - id: trailing-whitespace
+    args: [--markdown-linebreak-ext=md]
+  - id: end-of-file-fixer
+  - id: requirements-txt-fixer
+  - id: check-yaml
+  - id: check-toml
+  - id: check-json
+  - id: check-xml
+  - id: name-tests-test
+    args: [--pytest-test-first]
+  - id: check-illegal-windows-names # Use Python: pathlib
+  - id: mixed-line-ending
+#  - id: check-docstring-first
+
+# ----------------------------------------------------------------------------
+
+- repo: https://github.com/igorshubovych/markdownlint-cli
+  # Lints the Markdown files in the project.
+  # For Documentation and README.md
+  rev: v0.45.0
+  hooks:
+  - id: markdownlint-fix
+    args: ["--fix"]
+
+# ----------------------------------------------------------------------------
+
+- repo: https://github.com/srstevenson/nb-clean
+  # Cleans metadata from notebooks.
+  rev: 4.0.1
+  hooks:
+    - id: nb-clean
+      exclude: "docs"
+      args:
+        - --remove-empty-cells
+        - --preserve-cell-outputs
+#        - --preserve-execution-counts # This should be added when using
+                                       # enforce-notebook-run-order
+
+# ----------------------------------------------------------------------------
+
+- repo: https://github.com/astral-sh/ruff-pre-commit
+  # Ruff: Formatter and Linter.
+  rev: v0.11.10
+  hooks:
+    - id: ruff
+      types_or: [python, pyi, jupyter]
+      args: [--fix]
+    - id: ruff-format
+      types_or: [python, pyi, jupyter]
+
+# ----------------------------------------------------------------------------
+
+###
+### WOULD LIKE TO BE IN USE.
+###
+
+#- repo: https://github.com/PyCQA/pylint
+#  # Error and Style Linter
+#  rev:
+#  hooks:
+#  - id: pylint
+
+#-   repo: https://github.com/pre-commit/mirrors-mypy
+#    rev: ''  # Use the sha / tag you want to point at
+#    hooks:
+#    -   id: mypy
+
+# ----------------------------------------------------------------------------
+
+###
+### SOME MINOR ISSUES
+###
+
+# Promising but does not support Google or Numpy Style Docstrings.
+#- repo: https://github.com/PyCQA/docformatter
+#  rev: v1.7.5
+#  hooks:
+#    - id: docformatter
+#      additional_dependencies: [tomli]
+#      args: [--in-place --config ./pyproject.toml]
+
+# ----------------------------------------------------------------------------
+
+###
+### THIS IS TEST AREA FOR *.ipynb. #
+###
+
+# Maybe for Notebooks in the Documentation
+# https://github.com/christopher-hacker/enforce-notebook-run-order
+# repos:
+# -   repo: https://github.com/christopher-hacker/enforce_notebook_run_order
+#     rev: 1.4.1
+#     hooks:
+#     -   id: enforce-notebook-run-order
+
+#    Only works if Notebooks are edited with Jupyter-Lab.
+#-   repo: https://github.com/mwouts/jupytext
+#    # Used for sync formatting from .ipynb to .py
+#    rev: v1.15.2
+#    hooks:
+#    - id: jupytext
+#      args: ['--sync']
+
+# Ruff was used but can handle Notebooks now.
+# Maybe in future useful.
+# github.com/nbQA-dev/nbQA
+#- repo: https://github.com/nbQA-dev/nbQA
+#  # Runs the linters on JupyterNotebooks, respecting local settings.
+#  rev: '1.8.5'
+#  hooks:
+#    - id: nbqa-ruff
+#
+#    nbqa - Run any standard Python code quality tool on a Jupyter Notebook
+#    nbqa-black - Run 'black' on a Jupyter Notebook
+#    nbqa-check-ast - Run 'check-ast' on a Jupyter Notebook
+#    nbqa-flake8 - Run 'flake8' on a Jupyter Notebook
+#    nbqa-isort - Run 'isort' on a Jupyter Notebook
+#    nbqa-mypy - Run 'mypy' on a Jupyter Notebook
+#    nbqa-pylint - Run 'pylint' on a Jupyter Notebook
+#    nbqa-pyupgrade - Run 'pyupgrade' on a Jupyter Notebook
+#    nbqa-yapf - Run 'yapf' on a Jupyter Notebook
+#    nbqa-autopep8 - Run 'autopep8' on a Jupyter Notebook
+#    nbqa-pydocstyle - Run 'pydocstyle' on a Jupyter Notebook
+#    nbqa-ruff - Run 'ruff' on a Jupyter Notebook
+
+# ----------------------------------------------------------------------------
+
+###
+### SORTED OUT
+###
+
+# Can destroy the pyproject.toml if the file is not
+# well formatted upfront.
+#  - repo: https://github.com/tox-dev/pyproject-fmt
+#    rev: "2.1.1"
+#    hooks:
+#      - id: pyproject-fmt
+#        additional_dependencies: ["tox>=4.14.2"]
+
+# Removes comments form file.
+#- repo: https://github.com/tox-dev/tox-ini-fmt
+#  # Formatter for tox.ini
+#  rev: '1.3.1'
+#  hooks:
+#  - id: tox-ini-fmt
