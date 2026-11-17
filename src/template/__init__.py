@@ -6,11 +6,11 @@ listed in ``__all__`` is part of the public API and is documented by Sphinx.
 
 from importlib.metadata import PackageNotFoundError, version
 
-from template.example import add
+from template.example import RunningMean, add
 
 try:
     __version__ = version(__name__)
 except PackageNotFoundError:  # pragma: no cover - only when running from an uninstalled checkout
     __version__ = 'unknown'
 
-__all__ = ['__version__', 'add']
+__all__ = ['RunningMean', '__version__', 'add']

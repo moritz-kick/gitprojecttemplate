@@ -28,10 +28,9 @@ maintainers = [
 description = "TEMPLATE DESCRIPTION"
 readme = "README.md"
 requires-python = ">=3.11"
-# SPDX license expression (PEP 639), e.g. "MIT" or "Apache-2.0".
-# Add a LICENSE file and uncomment `license-files` when choosing a license.
-license = "LicenseRef-Proprietary"
-# license-files = ["LICENSE"]
+# SPDX license expression (PEP 639). Keep it in sync with the LICENSE file.
+license = "MIT"
+license-files = ["LICENSE"]
 
 classifiers = [
     "Programming Language :: Python :: 3",
@@ -68,14 +67,15 @@ test = [
 ]
 docs = [
     "furo>=2024.5",
-    "ipykernel>=6.0", # Executes notebooks without outputs (nbsphinx).
+    "ipykernel>=6.0", # Kernel to execute the notebooks (myst-nb).
     "matplotlib>=3.8", # Used by the example notebook.
-    "myst-parser>=3.0",
-    "nbsphinx>=0.9",
+    "myst-nb>=1.2", # Markdown (MyST) and Jupyter notebooks, no pandoc needed.
     "pylint>=3.2", # Ships pyreverse, used for the UML diagrams.
-    "sphinx>=7.3",
+    "sphinx>=8.1",
+    "sphinx-autobuild>=2024.10", # Live preview: tox -e docs-serve
     "sphinx-copybutton>=0.5",
     "sphinx-inline-tabs>=2023.4",
+    "sphinxcontrib-mermaid>=1.0", # Renders diagrams in the browser, no graphviz needed.
 ]
 
 # [project.urls]
@@ -168,7 +168,7 @@ warn_unreachable = true
 [tool.codespell]
 # Words that are spelled correctly but flagged by codespell.
 ignore-words-list = "ser"
-skip = "*.ipynb,*.dot"
+skip = "*.ipynb,*.mmd"
 
 # ----------------------------------------------------------------------------
 

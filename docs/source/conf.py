@@ -56,22 +56,28 @@ extensions = [
     'sphinx.ext.coverage', # Checks how much of the code is in the documentation.
 #   'sphinx.ext.doctest', # Tests docstring snippets.
     'sphinx.ext.duration', # Show the time needed to create docs.
-    'sphinx.ext.graphviz', # This is useful in combination with pyreverse.
 #   'sphinx.ext.intersphinx', # Used to connect with other documentations.
     'sphinx.ext.napoleon', # Used to convert NumPy or Google style docstrings to reStructuredText.
     'sphinx.ext.todo', # This can also be achieved by adding Todo within the docstring.
     'sphinx.ext.viewcode', # Creates links to source code.
 
     # Third Party Extensions
-    'myst_parser', # Allows to include Markdown files.
+    'myst_nb', # Markdown (MyST) and Jupyter notebooks. Includes myst_parser.
     'sphinx_copybutton', # Adds copy button to documentation.
     'sphinx_inline_tabs', # Allows creating tabs does not work within docstring.
-    'nbsphinx', # Allows adding Notebooks to docs (needs pandoc on the system).
+    'sphinxcontrib.mermaid', # Mermaid diagrams (UML from pyreverse), rendered in the browser.
 #    'matplotlib.sphinxext.plot_directive', # Enables plot directive
 ]
 
 templates_path = ['_templates']
 exclude_patterns = ['_build', '_templates', '**.ipynb_checkpoints']
+
+# Markdown (.md) is the default format for new pages, reStructuredText still works.
+source_suffix = {
+    '.rst': 'restructuredtext',
+    '.md': 'myst-nb',
+    '.ipynb': 'myst-nb',
+}
 
 
 # -- Options for HTML output -------------------------------------------------
@@ -80,6 +86,7 @@ exclude_patterns = ['_build', '_templates', '**.ipynb_checkpoints']
 html_theme = 'furo'
 html_static_path = ['_static']
 html_show_sphinx = False
+html_title = f'{project} {version}' # e.g. 'template 1.2' instead of the full dev version.
 # html_logo = '_static/titelbild_01.jpg'
 
 
@@ -102,8 +109,10 @@ autosummary_generate = True # Saves the created stub documentations.
 # https://www.sphinx-doc.org/en/master/usage/extensions/coverage.html
 # To use this you have to: sphinx-build -b coverage .\source\ .\build\
 
-coverage_modules = [project]
-coverage_show_missing_items  = True
+# coverage_modules is not set: every module that appears in the docs is checked.
+# The API reference (autosummary) is recursive, so it lists every module of the
+# package. (Sphinx also mishandles plain, non-package modules in this setting.)
+coverage_show_missing_items = True
 coverage_statistics_to_stdout = True
 
 # -- Options for doctest -----------------------------------------------------
@@ -112,11 +121,6 @@ coverage_statistics_to_stdout = True
 
 # -- Options for duration ----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/extensions/duration.html
-
-
-# -- Options for graphviz ----------------------------------------------------
-# https://www.sphinx-doc.org/en/master/usage/extensions/graphviz.html
-# This adds new directives.
 
 
 # -- Options for intersphinx -------------------------------------------------
@@ -146,13 +150,21 @@ myst_enable_extensions = [
     'dollarmath', # Enables parsing of $ and $$ syntax.
     'deflist', # Enables Definition Lists.
 ]
-# Creates anchors for headings, so that links like `(#section)` in the README work.
+# Creates anchors for headings, so that links like `(#section)` work.
 myst_heading_anchors = 4
 
-# -- Options for nbsphinx ----------------------------------------------------
-# https://nbsphinx.readthedocs.io/en/latest/configuration.html
-# 'auto' executes notebooks only if they are stored without outputs.
-nbsphinx_execute = 'auto'
+# -- Options for MyST-NB -----------------------------------------------------
+# https://myst-nb.readthedocs.io/en/latest/configuration.html
+# 'cache' executes the notebooks and caches the results, so they only run
+# again when their code changes.
+nb_execution_mode = 'cache'
+nb_execution_cache_path = str(PROJECT_ROOT / 'reports' / 'tools' / 'sphinx' / 'jupyter_cache')
+nb_execution_raise_on_error = True # A failing notebook fails the build.
+nb_execution_timeout = 120 # Seconds per cell.
+
+# -- Options for sphinxcontrib-mermaid ---------------------------------------
+# https://sphinxcontrib-mermaid-demo.readthedocs.io/
+# The diagrams in docs/source/uml are created with `tox -e docs-uml`.
 
 # -- Third-Party extensions configuration ------------------------------------
 ##############################################################################

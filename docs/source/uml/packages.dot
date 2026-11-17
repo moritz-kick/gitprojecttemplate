@@ -1,7 +1,0 @@
-digraph "packages" {
-rankdir=BT
-charset="utf-8"
-"template" [color="#77AADD", label=<template>, shape="box", style="filled"];
-"template.example" [color="#77AADD", label=<template.example>, shape="box", style="filled"];
-"template" -> "template.example" [arrowhead="open", arrowtail="none"];
-}
