@@ -27,9 +27,10 @@ pipx install tox && pipx inject tox tox-uv
 Then, inside the repository:
 
 ``` shell
-tox devenv -e dev .venv   # development environment with all extras
-pre-commit install        # run linters and formatters on every commit (optional)
-tox                       # run the tests on all installed Python versions
+tox devenv -e dev .venv     # development environment with all extras
+source .venv/bin/activate   # Windows: .venv\Scripts\activate
+pre-commit install          # run linters and formatters on every commit (optional)
+tox                         # run the tests on all installed Python versions
 ```
 
 | Command                     | What it does                                               |
@@ -42,7 +43,7 @@ tox                       # run the tests on all installed Python versions
 | `tox -e mypy`               | Run the static type checker                                |
 | `tox -e docs`               | Build the documentation (`-uml`, `-clean` variants)        |
 | `tox -e docs-serve`         | Preview the documentation with live reload                 |
-| `tox -e py312-requirements` | Create pinned requirements files                           |
+| `tox -e requirements`       | Create pinned requirements files                           |
 
 All environments are listed with `tox list`.
 
@@ -56,7 +57,7 @@ replace `template` in the following places:
 - `source_pkgs = ["template"]` in the `[tool.coverage.run]` table of `pyproject.toml`,
 - the `pyreverse ... template` command in the `docs` environment of `tox.ini`,
 - the module name in `docs/source/autosummary.rst`,
-- the imports in `src/template/__init__.py` and `tests/test_example.py`.
+- the imports in `tests/test_example.py`.
 
 Also update the general information in the `[project]` table of
 `pyproject.toml` (authors, description, ...), the copyright line in `LICENSE`

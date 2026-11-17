@@ -107,6 +107,7 @@ addopts = [
     "--strict-markers", # Unknown markers are errors, not silent typos.
     "--strict-config", # Unknown config keys are errors.
     "--import-mode=importlib", # Recommended for new projects; no sys.path hacks.
+    "--doctest-modules", # Runs the `Examples:` in the docstrings of src/.
     "--cov",
     "--cov-report=term-missing:skip-covered",
     "--cov-report=html",
@@ -114,7 +115,7 @@ addopts = [
     "--html=reports/tools/pytest/test_report.html",
     "--self-contained-html",
 ]
-testpaths = ["tests"]
+testpaths = ["tests", "src"]
 xfail_strict = true
 
 # There should be no tests for experimental functionality.

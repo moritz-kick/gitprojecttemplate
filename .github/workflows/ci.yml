@@ -9,10 +9,11 @@ on:
 permissions:
   contents: read
 
-# Cancel older runs of the same branch/PR when a new commit is pushed.
+# Cancel older runs of the same PR when a new commit is pushed. Runs on main
+# are never cancelled, so every merged commit gets a CI result.
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 env:
   FORCE_COLOR: "1"

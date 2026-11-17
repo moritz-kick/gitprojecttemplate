@@ -40,9 +40,9 @@ copyright = f'{datetime.now(tz=UTC).year}, {author}'  # noqa: A001
 # version: The short X.Y version.
 try:
     release = get_version(project)
-except PackageNotFoundError:
-    release = 'unknown (the package is not installed in this environment)'
-version = '.'.join(release.split('.')[:2])
+    version = '.'.join(release.split('.')[:2])
+except PackageNotFoundError:  # The package is not installed in this environment.
+    release = version = 'unknown'
 
 
 # -- General configuration ---------------------------------------------------

@@ -26,8 +26,10 @@ into `main`. Stable releases are tagged with a version number.
 
 [setuptools-scm](https://setuptools-scm.readthedocs.io/) derives the version
 from git tags (e.g. `git tag v1.2.0`), so it is never written by hand. Between
-two tags the version contains the distance to the last tag, e.g.
-`1.2.1.dev3+g1a2b3c4`. The package reads it at runtime:
+two tags the version contains the distance to the last tag and the commit, e.g.
+`1.2.0.post1.dev3+g1a2b3c4` for the third commit after `v1.2.0`
+(`version_scheme = "no-guess-dev"`: no guessing of the next version). The
+package reads it at runtime:
 
 ``` python
 import template

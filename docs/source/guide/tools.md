@@ -103,7 +103,7 @@ version can be chosen with e.g. `tox devenv -e dev -x testenv:dev.base_python=py
 
 ### Creating a requirements.txt with Tox
 
-Covers the `[testenv:py3{11,12,13,14}-requirements]` section in the `tox.ini`.
+Covers the `[testenv:requirements]` section in the `tox.ini`.
 
 Sometimes a requirements file with pinned versions is needed for
 reproducibility, so that bugs or errors can be reproduced and pinned down,
@@ -111,12 +111,15 @@ since developers can be working on different versions of packages (e.g.
 `package>1.3` is true for version 1.4 and 1.5).
 
 ``` shell
-tox -e py312-requirements
+tox -e requirements
 ```
 
-This creates `requirements-py312.txt` (runtime dependencies) and
-`requirements-py312-dev.txt` (including all extras) with
-[uv pip compile](https://docs.astral.sh/uv/pip/compile/).
+This creates `requirements.txt` (runtime dependencies) and
+`requirements-dev.txt` (including all extras) with
+[uv pip compile](https://docs.astral.sh/uv/pip/compile/). With `--universal`
+one file is valid for all supported Python versions and platforms; where they
+need different packages, the lines carry environment markers
+(e.g. `; python_full_version < '3.12'`).
 
 ### Running pre-commit hooks with Tox
 
@@ -217,6 +220,9 @@ per-file ignores. Ruff also lints and formats Jupyter notebooks.
 
 pytest is configured in the `[tool.pytest.ini_options]` table of the
 `pyproject.toml`. Tests are placed in `tests/` and named `test_*.py`. The
+`Examples:` in the docstrings of the package are run as tests as well
+([doctests](https://docs.pytest.org/en/stable/how-to/doctest.html),
+`--doctest-modules`), so the examples in the documentation stay correct. The
 default options create:
 
 - a coverage report in `reports/tools/coverage/html` (pytest-cov),
@@ -317,6 +323,14 @@ They are rendered by [sphinxcontrib-mermaid](
 https://github.com/mgaitan/sphinxcontrib-mermaid), see the
 [UML page](../uml/index.md). The options of pyreverse can be adjusted in the
 `tox.ini`.
+
+```{note}
+The diagrams are drawn in the browser by mermaid.js, which is loaded from a CDN
+(jsDelivr). Without internet access (offline, behind a firewall, or when the
+built docs are opened from a CI artifact without network) they are shown as
+text. For offline docs, download `mermaid.esm.min.mjs` into
+`docs/source/_static/` and set `mermaid_use_local` in `conf.py`.
+```
 
 ## Continuous integration
 

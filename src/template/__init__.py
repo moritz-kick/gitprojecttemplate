@@ -6,7 +6,7 @@ listed in ``__all__`` is part of the public API and is documented by Sphinx.
 
 from importlib.metadata import PackageNotFoundError, version
 
-from template.example import RunningMean, add
+from .example import RunningMean, add
 
 try:
     __version__ = version(__name__)
