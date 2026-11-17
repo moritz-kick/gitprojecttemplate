@@ -6,4 +6,4 @@ Autosummary
    :template: custom-module-template.rst
    :recursive:
 
-   inverso
+   template

@@ -29,33 +29,46 @@ The following project structure was inspired by
 ├── reports                 <- Generated analysis as HTML, PDF, LaTeX, etc.
 │   └── vis                 <- Generated plots and figures for reports.
 ├── src
-│   └── TEMPLATE            <- Actual Python package where the main functionality goes.
+│   └── template            <- Actual Python package where the main functionality goes.
 ├── tests                   <- Unit tests which can be run with `pytest`.
+├── .github                 <- GitHub Actions CI workflow and Dependabot configuration.
 ├── .gitignore              <- Specifies files and directories to be ignored by Git.
+├── .markdownlint.yaml      <- Configuration of the Markdown linter.
 ├── .pre-commit-config.yaml <- Configuration of pre-commit git hooks.
 ├── pyproject.toml          <- Build and if possible tool configuration.
 ├── README.md               <- The top-level README for developers.
-├── requirements.txt        <- The requirements file for reproducibility.
-├── setup.py                <- [DEPRECATED]
 └── tox.ini                 <- Configuration file for Tox, specifying how to run tests,
                                check code quality, build docs and build the project in
-                               isolated environments.  
+                               isolated environments.
 ```
 <!-- markdownlint-enable -->
 
 ## Project Information
 
 In the [pyproject.toml] under the `[project]` table general information about the
-project can be added. You have to replace `name = "TEMPLATE"` with the name of
-the package, otherwise the project won't build.
+project can be added (authors, description, license, ...). The `[project]` table
+information should also be written in the [description section](#description).
 
-The `[project]` table information should also be written in the the
-[description section](#description).
+The placeholder package is called `template`. To rename it (e.g. to `my_package`),
+replace `template` in the following places:
+
+- the directory `src/template/`,
+- `name = "template"` in the `[project]` table of [pyproject.toml],
+- `source_pkgs = ["template"]` in the `[tool.coverage.run]` table of [pyproject.toml],
+- the `pyreverse ... template` command in the `docs` environment of [tox.ini],
+- the module name in [./docs/source/autosummary.rst],
+- the imports in `src/template/__init__.py` and `tests/test_example.py`.
+
+The version is not written anywhere: [setuptools-scm](https://setuptools-scm.readthedocs.io/)
+derives it from the latest git tag, and the package reads it at runtime with
+`importlib.metadata`. The Sphinx configuration reads name, authors and version
+from the [pyproject.toml] and the installed package.
 
 ## How to use this Template
 
-Python must be installed on the system. At the moment all supported Python
-versions need to be present on the system.
+Python (>= 3.11) must be installed on the system. [Tox] runs the tests against
+every supported Python version (3.11 - 3.14); versions that are not installed
+are skipped (`skip_missing_interpreters`).
 
 Since this template makes heavy use of [Tox], it needs to be installed.
 
@@ -130,8 +143,8 @@ table. Dependencies that *only* the package depends on should be added into
 the dependencies list. That would be all packages that a user of the project
 would need, so that the package can be run.
 
-Under the `[project.optional-dependencies]` table there are two more dependency
-entries. They are necessary, since this template uses tools.
+Under the `[project.optional-dependencies]` table there are three more dependency
+entries (extras). They are necessary, since this template uses tools.
 
 - **dev**:  
 Packages that are necessary for development, should be placed here.(Testing,
@@ -177,7 +190,7 @@ Specific config locations for a tool can be found in the tool section.
 **Configuration Files**:
 
 - [pyproject.toml]  
-  This is the replacement for the old [setup.py](setup.py)/setup.cfg.  
+  This is the replacement for the old setup.py/setup.cfg.  
   Most tools slowly shift their configuration into this file.
 - [.pre-commit-config.yaml]  
   Smaller tools with little or no configuration are managed within this file.
@@ -236,7 +249,6 @@ they should be commented**
     since it would bloat the [pyproject.toml] and the settings of this hooks
     are small.
     - [Out-of-the-Box Hooks](https://github.com/pre-commit/pre-commit-hooks)
-    - [Add-trailing-comma](https://github.com/asottile/add-trailing-comma)
     - [Codespell](https://github.com/codespell-project/codespell)
     - [Markdown-cli](https://github.com/igorshubovych/markdownlint-cli)
     - [nb-clean](https://github.com/srstevenson/nb-clean)
@@ -245,7 +257,7 @@ they should be commented**
   - *Config / Settings:* [pyproject.toml]
   - *Run:* Manual or [pre-commit](run by [Tox])
 
-- [pytest](https://docs.pytest.org/en/7.4.x/)
+- [pytest](https://docs.pytest.org/en/stable/)
   - *Config / Settings:* [pyproject.toml]
   - *Run:* Manual or [Tox]
 
@@ -259,11 +271,23 @@ they should be commented**
 
 ## [Tox] ([Docs](https://tox.wiki/en/stable/)/[Repository](https://github.com/tox-dev/tox))
 
-Within the [tox.ini] *tox envivornments* can be specified. When running `tox` in
+Within the [tox.ini] *tox environments* can be specified. When running `tox` in
 the terminal tox will run all environments specified within the `env_list`
-variable, in this template [pytest] is run in against multiple [Python]
+variable, in this template [pytest] is run against multiple Python
 versions as default. Other environments can be run with `tox -e <env_name>`
-(e.g. `tox -e py311-all`). The environments will be explained below.
+(e.g. `tox -e docs`). All environments can be listed with `tox list`. The
+environments will be explained below.
+
+| Command                        | What it does                                               |
+| ------------------------------ | ---------------------------------------------------------- |
+| `tox`                          | Run the tests on all installed Python versions (3.11-3.14) |
+| `tox -e py312`                 | Run the tests on one Python version                        |
+| `tox devenv -e dev .venv`      | Create the development environment in `.venv`              |
+| `tox -e pre-commit`            | Run all linters and formatters on all files                |
+| `tox -e pre-commit-update`     | Update the hook versions in `.pre-commit-config.yaml`      |
+| `tox -e mypy`                  | Run the static type checker                                |
+| `tox -e docs`                  | Build the documentation (`-uml`, `-clean` variants)        |
+| `tox -e py312-requirements`    | Create pinned requirements files                           |
 
 [Tox] automates following developer processes, in this project:
 
@@ -275,31 +299,23 @@ versions as default. Other environments can be run with `tox -e <env_name>`
 
 ### Installing an environment with [Tox]
 
-Covers the `[testenv:py{39,310,311,312}{,-dev,-test,-docs,-all}]` section in
-the [tox.ini].
+Covers the `[testenv:dev]` section in the [tox.ini].
 
-This section is responsible for creating an Python environment. Different
-environments can be installed.  
-For example:
+The development environment is created with the built-in [tox devenv](
+https://tox.wiki/en/stable/cli_interface.html#tox-devenv) command:
 
 ``` shell
-tox -e py311-all -- [.TEMPLATE_VENV]
+tox devenv -e dev .venv
 ```
 
-This will create an environment named `.TEMPLATE_VENV` with all dependencies
-needed for developing in this project. It will install the package editable
-with the [dev, test and docs dependencies](#project-dependencies-packages).
+This will create an environment in `.venv` with all dependencies needed for
+developing in this project. It installs the package editable with the
+[dev, test and docs dependencies](#project-dependencies-packages). The Python
+version can be chosen with e.g. `tox devenv -e dev -x testenv:dev.base_python=py312 .venv`.
 
 As explained in the [dependencies section](#project-dependencies-packages) the
 separation is mostly to make [Tox] build faster when running specific
 environments like the test environment.
-
-This will not be necessary most of the time, but if needed specific
-environments can be build with:
-
-``` shell
-tox -e pyVERSION-[EXTRAS]
-```
 
 There would be another way to separate the specific dependencies. One could put
 the dependencies into the [tox.ini] within the [tox] environment. This would
@@ -308,22 +324,27 @@ tools if wanted.
 
 ### Creating a requirements.txt with [Tox]
 
-Covers the `[testenv:py{39,310,311,312}-requirements]` section in the [tox.ini]
+Covers the `[testenv:py3{11,12,13,14}-requirements]` section in the [tox.ini]
 
-Sometimes for reproduciabilty its needed to create a requirements.txt. So that
-bugs or errors can be reproduced and pined down, since developers can be
+Sometimes for reproducibility its needed to create a requirements.txt. So that
+bugs or errors can be reproduced and pinned down, since developers can be
 working on different versions of packages (e.g. package>1.3 is true for package
 version 1.4 and 1.5).
 
 ``` shell
-tox -e pyVERSION-requirements
+tox -e py312-requirements
 ```
+
+This creates `requirements-py312.txt` (runtime dependencies) and
+`requirements-py312-dev.txt` (including all extras) with [pip-tools](
+https://pip-tools.readthedocs.io/).
 
 ### Running [pre-commit]-hooks with [Tox]
 
-Covers the `[testenv:pre-commit{,-update,-clean}]` section in [tox.ini]
+Covers the `[testenv:pre-commit]`, `[testenv:pre-commit-update]` and
+`[testenv:pre-commit-clean]` sections in [tox.ini]
 
-[Pre-commit] is used to orchastrate linter and formatter. See [Pre-commit section](#pre-commit-docsrepository)
+[Pre-commit] is used to orchestrate linter and formatter. See [Pre-commit section](#pre-commit-docsrepository)
 for more details.  
 
 ``` shell
@@ -333,19 +354,23 @@ tox -e pre-commit
 This command sets up [pre-commit] in a separate [Tox] environment, isolating it
 from your local environment and ensuring consistency.
 
-This runs the defined hooks in [.pre-commit-config.yaml]. They can be updated
-with the `-update` flag.
+This runs the defined hooks in [.pre-commit-config.yaml] on all files. A single
+hook can be run with e.g. `tox -e pre-commit -- ruff-check`. The hook versions
+can be updated with `tox -e pre-commit-update`.
 
 ### Running [Pytest] with [Tox]
 
-Covers the `[testenv:py{39,310,311,312}-test]` section in the [tox.ini]
+Covers the `[testenv]` section in the [tox.ini]
 
 ``` shell
-tox -e pytest
+tox -e py312
 ```
 
 This runs [pytest] with the default flag `-n auto`, which runs [pytest] in
-parallel mode and `--cov --cov-report html`, which creates a coverage report.
+parallel mode. Other arguments can be passed after `--`, e.g.
+`tox -e py312 -- -k test_add`. The options in the [pyproject.toml] create a
+coverage report (`reports/tools/coverage/html`) and a test report
+(`reports/tools/pytest/test_report.html`).
 
 ### Building the sphinx documentation with [Tox]
 
@@ -355,8 +380,9 @@ Covers the `[testenv:docs{,-uml,-clean}]` section in the [tox.ini]
 tox -e docs
 ```
 
-This creates a html documentation under [/docs/build/index.html]. The `-uml`
-flag can be used to create UML-diagrams for the documentation.
+This creates a html documentation under `reports/tools/sphinx/docs/index.html`.
+The `-uml` flag can be used to create UML-diagrams for the documentation and the
+`-clean` flag removes old build files first (e.g. `tox -e docs-clean`).
 
 ## [Pre-commit] ([Docs](https://pre-commit.com/)/[Repository](https://github.com/pre-commit/pre-commit))
 
@@ -388,8 +414,8 @@ commits will reuse the installed hooks, unless specified otherwise.
 
 To avoid [pre-commit] hooks from blocking your commits (e.g., during rapid
 development phases), you can run [pre-commit] through [Tox]. This method allows you
-to manually run [pre-commit] checks and integrate them into CI pipelines, such as
-Jenkins.
+to manually run [pre-commit] checks and integrate them into CI pipelines (see
+[Continuous Integration](#continuous-integration)).
 
 To run [pre-commit] with [Tox], see [pre-commit hooks with Tox](#running-pre-commit-hooks-with-tox)
 
@@ -398,7 +424,7 @@ use can be found in the [.pre-commit-config.yaml]. A one-line explanation is
 given in the config, for more information for a specific hook take a look at
 the repository/documentation of that hook.
 
-```
+```text
            ┌──Ruff  
            │  
            ├──Out-Of-The-Box-Hooks  
@@ -438,9 +464,10 @@ WIP
 Some dependencies can't be shipped with this template, the following needs to
 be available on system.
 
-- **pandoc**
+- **pandoc**:  
+  Needed by `nbsphinx` to render the notebooks.
 - **graphviz**:  
-  Because of `pyreverse`.
+  Renders the UML diagrams created by `pyreverse`.
 
 [Sphinx] is configured in [./docs/source/conf.py]. The configuration is well
 documented, also there is a link placed for every configuration or extension
@@ -529,6 +556,20 @@ https://pradyunsg.me/furo/kitchen-sink/) it contains a information for working
 with Sphinx in general.
 - Read the Docs provides more tips: <https://docs.readthedocs.io/en/stable/guides/content/index.html>
 
+## Continuous Integration
+
+The workflow in `.github/workflows/ci.yml` runs on every push to `main` and on
+every pull request. It uses the same [Tox] environments as on a local machine:
+
+- `tox -e pre-commit` (linting and formatting),
+- `tox -e mypy` (type checking),
+- `tox -e py` on Python 3.11 - 3.14 (tests),
+- `tox -e docs` (documentation build).
+
+[Dependabot](https://docs.github.com/en/code-security/dependabot) keeps the
+versions of the GitHub Actions up to date (`.github/dependabot.yml`), the hook
+versions are updated with `tox -e pre-commit-update`.
+
 ## Sources
 
 A list of useful sources:
@@ -546,7 +587,7 @@ A list of useful sources:
 [pre-commit]: https://pre-commit.com/
 [ruff]: https://docs.astral.sh/ruff/
 [pytest]: https://docs.pytest.org/en/stable/
-[reStructuredText]: (https://www.sphinx-doc.org/en/master/usage/restructuredtext/index.html)
+[reStructuredText]: https://www.sphinx-doc.org/en/master/usage/restructuredtext/index.html
 
 ### Files
 

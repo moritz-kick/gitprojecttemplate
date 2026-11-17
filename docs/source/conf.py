@@ -3,51 +3,46 @@
 # For the full list of built-in configuration values, see the documentation:
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
 
-import os
 import sys
-
-if sys.version_info >= (3, 11):
-    import tomllib
-else:
-    import tomli as tomllib
+import tomllib
+from datetime import UTC, datetime
+from importlib.metadata import PackageNotFoundError
+from importlib.metadata import version as get_version
+from pathlib import Path
 
 # -- Path setup --------------------------------------------------------------
 
-__location__ = os.path.dirname(__file__)
+DOCS_SOURCE = Path(__file__).resolve().parent
+PROJECT_ROOT = DOCS_SOURCE.parents[1]
 
 # If extensions (or modules to document with autodoc) are in another directory,
-# add these directories to sys.path here. If the directory is relative to the
-# documentation root, use os.path.abspath to make it absolute, like shown here.
-sys.path.insert(0, os.path.join(__location__, '../../src'))
-sys.path.insert(0, os.path.join(__location__, '../../docs/source/example'))
-
+# add these directories to sys.path here.
+sys.path.insert(0, str(PROJECT_ROOT / 'src'))
+sys.path.insert(0, str(DOCS_SOURCE / 'example'))
 
 
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
+# Everything is read from the pyproject.toml, the single source of truth.
 
-with open('../../pyproject.toml', 'rb') as f:
-    toml = tomllib.load(f)
+with (PROJECT_ROOT / 'pyproject.toml').open('rb') as f:
+    pyproject = tomllib.load(f)['project']
 
-project = toml['project']['name']
-authors_list = [f"{author['name']}, {author['email']}" for author in toml['project']['authors']]
-author = ' '.join(authors_list)
-copyright = toml['project']['license']['text']
+project = pyproject['name']
+author = ', '.join(person['name'] for person in pyproject.get('authors', []))
+copyright = f'{datetime.now(tz=UTC).year}, {author}'  # noqa: A001
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
 # built documents.
 #
-# version: The short X.Y version.
 # release: The full version, including alpha/beta/rc tags.
-# If you don’t need the separation provided between version and release,
-# just set them both to the same value.
+# version: The short X.Y version.
 try:
-    from inverso._version import __version__ as version
-except ImportError:
-    version = 'UNKNOWN Version. Check if the project is installed in your env.'
-
-release = version
+    release = get_version(project)
+except PackageNotFoundError:
+    release = 'unknown (the package is not installed in this environment)'
+version = '.'.join(release.split('.')[:2])
 
 
 # -- General configuration ---------------------------------------------------
@@ -71,13 +66,12 @@ extensions = [
     'myst_parser', # Allows to include Markdown files.
     'sphinx_copybutton', # Adds copy button to documentation.
     'sphinx_inline_tabs', # Allows creating tabs does not work within docstring.
-#    'nbsphinx', # Allows adding Notebooks to docs.
-#    'sphinx_gallery.load_style', # Allows creating Notebook galleries.
+    'nbsphinx', # Allows adding Notebooks to docs (needs pandoc on the system).
 #    'matplotlib.sphinxext.plot_directive', # Enables plot directive
 ]
 
 templates_path = ['_templates']
-exclude_patterns = ['_build', '_templates']
+exclude_patterns = ['_build', '_templates', '**.ipynb_checkpoints']
 
 
 # -- Options for HTML output -------------------------------------------------
@@ -108,7 +102,7 @@ autosummary_generate = True # Saves the created stub documentations.
 # https://www.sphinx-doc.org/en/master/usage/extensions/coverage.html
 # To use this you have to: sphinx-build -b coverage .\source\ .\build\
 
-coverage_modules = ["inverso"]
+coverage_modules = [project]
 coverage_show_missing_items  = True
 coverage_statistics_to_stdout = True
 
@@ -152,6 +146,13 @@ myst_enable_extensions = [
     'dollarmath', # Enables parsing of $ and $$ syntax.
     'deflist', # Enables Definition Lists.
 ]
+# Creates anchors for headings, so that links like `(#section)` in the README work.
+myst_heading_anchors = 4
+
+# -- Options for nbsphinx ----------------------------------------------------
+# https://nbsphinx.readthedocs.io/en/latest/configuration.html
+# 'auto' executes notebooks only if they are stored without outputs.
+nbsphinx_execute = 'auto'
 
 # -- Third-Party extensions configuration ------------------------------------
 ##############################################################################

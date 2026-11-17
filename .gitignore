@@ -1,13 +1,20 @@
 # Source for Templates: https://github.com/github/gitignore
 
 ###        ###
-### Costum ###
+### Custom ###
 ###        ###
 
-*_version.py
 .ruff_cache
 scriptmk.py
 file_list.txt
+
+# Pinned requirements created with `tox -e pyXY-requirements` are not ignored:
+# commit them if the exact environment should be reproducible.
+
+# Secrets (API keys, tokens). Commit only an example file without values.
+*.env
+.env.*
+!.env.example
 
 
 ###                  ###
@@ -30,8 +37,8 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib/
-lib64/
+/lib/
+/lib64/
 parts/
 sdist/
 var/
@@ -86,6 +93,7 @@ instance/
 
 # Sphinx documentation
 docs/_build/
+docs/build/
 
 # PyBuilder
 .pybuilder/
@@ -257,13 +265,10 @@ fabric.properties
 ### Virtualenv.gitignore ###
 ### https://github.com/github/gitignore/blob/main/Global/VirtualEnv.gitignore                     ###
 
+# The template's [Bb]in, [Ii]nclude, [Ll]ib, [Ll]ocal and [Ss]cripts patterns
+# are left out on purpose: they would ignore every directory with that name
+# (e.g. scripts/ or src/<package>/lib/). Virtual environments live in .venv/.
 .Python
-[Bb]in
-[Ii]nclude
-[Ll]ib
-[Ll]ib64
-[Ll]ocal
-[Ss]cripts
 pyvenv.cfg
 .venv
 pip-selfcheck.json
@@ -279,8 +284,6 @@ pip-selfcheck.json
 profile_default/
 ipython_config.py
 
-# API Keys
-CLAUDE_API_KEY.env
 
 # Remove previous ipynb_checkpoints
 #   git rm -r .ipynb_checkpoints/
