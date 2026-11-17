@@ -4,10 +4,5 @@
     ],
     "python.testing.unittestEnabled": false,
     "python.testing.pytestEnabled": true,
-
-
     "ruff.configuration": "pyproject.toml"
-
-
 }
-// These are settings for vscode

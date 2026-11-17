@@ -1,7 +1,5 @@
-exclude: "_version.py" # File for setuptools_scm
-
-default_language_version: # Markdownlint may use old node version.
-    node: latest
+default_language_version: # Markdownlint needs a recent node version.
+    node: lts
 
 repos:
 
@@ -9,7 +7,7 @@ repos:
 
 - repo: https://github.com/pre-commit/pre-commit-hooks
   # Pre-Commit Out-of-the-box hooks.
-  rev: v5.0.0
+  rev: v6.0.0
   hooks:
   - id: check-added-large-files
     args: ["--maxkb=3000"]
@@ -32,16 +30,15 @@ repos:
 - repo: https://github.com/igorshubovych/markdownlint-cli
   # Lints the Markdown files in the project.
   # For Documentation and README.md
-  rev: v0.45.0
+  rev: v0.50.0
   hooks:
-  - id: markdownlint-fix
-    args: ["--fix"]
+  - id: markdownlint-fix # Settings in .markdownlint.yaml
 
 # ----------------------------------------------------------------------------
 
 - repo: https://github.com/srstevenson/nb-clean
   # Cleans metadata from notebooks.
-  rev: 4.0.1
+  rev: v6.0.0
   hooks:
     - id: nb-clean
       exclude: "docs"
@@ -55,13 +52,22 @@ repos:
 
 - repo: https://github.com/astral-sh/ruff-pre-commit
   # Ruff: Formatter and Linter.
-  rev: v0.11.10
+  # Settings in pyproject.toml ([tool.ruff]), `fix = true` is set there.
+  rev: v0.17.5
   hooks:
-    - id: ruff
+    - id: ruff-check
       types_or: [python, pyi, jupyter]
-      args: [--fix]
     - id: ruff-format
       types_or: [python, pyi, jupyter]
+
+# ----------------------------------------------------------------------------
+
+- repo: https://github.com/codespell-project/codespell
+  # Finds common misspellings in code, comments and docs.
+  # Settings in pyproject.toml ([tool.codespell]).
+  rev: v2.4.3
+  hooks:
+    - id: codespell
 
 # ----------------------------------------------------------------------------
 

@@ -3,51 +3,46 @@
 # For the full list of built-in configuration values, see the documentation:
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
 
-import os
 import sys
-
-if sys.version_info >= (3, 11):
-    import tomllib
-else:
-    import tomli as tomllib
+import tomllib
+from datetime import UTC, datetime
+from importlib.metadata import PackageNotFoundError
+from importlib.metadata import version as get_version
+from pathlib import Path
 
 # -- Path setup --------------------------------------------------------------
 
-__location__ = os.path.dirname(__file__)
+DOCS_SOURCE = Path(__file__).resolve().parent
+PROJECT_ROOT = DOCS_SOURCE.parents[1]
 
 # If extensions (or modules to document with autodoc) are in another directory,
-# add these directories to sys.path here. If the directory is relative to the
-# documentation root, use os.path.abspath to make it absolute, like shown here.
-sys.path.insert(0, os.path.join(__location__, '../../src'))
-sys.path.insert(0, os.path.join(__location__, '../../docs/source/example'))
-
+# add these directories to sys.path here.
+sys.path.insert(0, str(PROJECT_ROOT / 'src'))
+sys.path.insert(0, str(DOCS_SOURCE / 'example'))
 
 
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
+# Everything is read from the pyproject.toml, the single source of truth.
 
-with open('../../pyproject.toml', 'rb') as f:
-    toml = tomllib.load(f)
+with (PROJECT_ROOT / 'pyproject.toml').open('rb') as f:
+    pyproject = tomllib.load(f)['project']
 
-project = toml['project']['name']
-authors_list = [f"{author['name']}, {author['email']}" for author in toml['project']['authors']]
-author = ' '.join(authors_list)
-copyright = toml['project']['license']['text']
+project = pyproject['name']
+author = ', '.join(person['name'] for person in pyproject.get('authors', []))
+copyright = f'{datetime.now(tz=UTC).year}, {author}'  # noqa: A001
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
 # built documents.
 #
-# version: The short X.Y version.
 # release: The full version, including alpha/beta/rc tags.
-# If you don’t need the separation provided between version and release,
-# just set them both to the same value.
+# version: The short X.Y version.
 try:
-    from inverso._version import __version__ as version
-except ImportError:
-    version = 'UNKNOWN Version. Check if the project is installed in your env.'
-
-release = version
+    release = get_version(project)
+    version = '.'.join(release.split('.')[:2])
+except PackageNotFoundError:  # The package is not installed in this environment.
+    release = version = 'unknown'
 
 
 # -- General configuration ---------------------------------------------------
@@ -61,23 +56,28 @@ extensions = [
     'sphinx.ext.coverage', # Checks how much of the code is in the documentation.
 #   'sphinx.ext.doctest', # Tests docstring snippets.
     'sphinx.ext.duration', # Show the time needed to create docs.
-    'sphinx.ext.graphviz', # This is useful in combination with pyreverse.
 #   'sphinx.ext.intersphinx', # Used to connect with other documentations.
     'sphinx.ext.napoleon', # Used to convert NumPy or Google style docstrings to reStructuredText.
     'sphinx.ext.todo', # This can also be achieved by adding Todo within the docstring.
     'sphinx.ext.viewcode', # Creates links to source code.
 
     # Third Party Extensions
-    'myst_parser', # Allows to include Markdown files.
+    'myst_nb', # Markdown (MyST) and Jupyter notebooks. Includes myst_parser.
     'sphinx_copybutton', # Adds copy button to documentation.
     'sphinx_inline_tabs', # Allows creating tabs does not work within docstring.
-#    'nbsphinx', # Allows adding Notebooks to docs.
-#    'sphinx_gallery.load_style', # Allows creating Notebook galleries.
+    'sphinxcontrib.mermaid', # Mermaid diagrams (UML from pyreverse), rendered in the browser.
 #    'matplotlib.sphinxext.plot_directive', # Enables plot directive
 ]
 
 templates_path = ['_templates']
-exclude_patterns = ['_build', '_templates']
+exclude_patterns = ['_build', '_templates', '**.ipynb_checkpoints']
+
+# Markdown (.md) is the default format for new pages, reStructuredText still works.
+source_suffix = {
+    '.rst': 'restructuredtext',
+    '.md': 'myst-nb',
+    '.ipynb': 'myst-nb',
+}
 
 
 # -- Options for HTML output -------------------------------------------------
@@ -86,6 +86,7 @@ exclude_patterns = ['_build', '_templates']
 html_theme = 'furo'
 html_static_path = ['_static']
 html_show_sphinx = False
+html_title = f'{project} {version}' # e.g. 'template 1.2' instead of the full dev version.
 # html_logo = '_static/titelbild_01.jpg'
 
 
@@ -108,8 +109,10 @@ autosummary_generate = True # Saves the created stub documentations.
 # https://www.sphinx-doc.org/en/master/usage/extensions/coverage.html
 # To use this you have to: sphinx-build -b coverage .\source\ .\build\
 
-coverage_modules = ["inverso"]
-coverage_show_missing_items  = True
+# coverage_modules is not set: every module that appears in the docs is checked.
+# The API reference (autosummary) is recursive, so it lists every module of the
+# package. (Sphinx also mishandles plain, non-package modules in this setting.)
+coverage_show_missing_items = True
 coverage_statistics_to_stdout = True
 
 # -- Options for doctest -----------------------------------------------------
@@ -118,11 +121,6 @@ coverage_statistics_to_stdout = True
 
 # -- Options for duration ----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/extensions/duration.html
-
-
-# -- Options for graphviz ----------------------------------------------------
-# https://www.sphinx-doc.org/en/master/usage/extensions/graphviz.html
-# This adds new directives.
 
 
 # -- Options for intersphinx -------------------------------------------------
@@ -152,6 +150,21 @@ myst_enable_extensions = [
     'dollarmath', # Enables parsing of $ and $$ syntax.
     'deflist', # Enables Definition Lists.
 ]
+# Creates anchors for headings, so that links like `(#section)` work.
+myst_heading_anchors = 4
+
+# -- Options for MyST-NB -----------------------------------------------------
+# https://myst-nb.readthedocs.io/en/latest/configuration.html
+# 'cache' executes the notebooks and caches the results, so they only run
+# again when their code changes.
+nb_execution_mode = 'cache'
+nb_execution_cache_path = str(PROJECT_ROOT / 'reports' / 'tools' / 'sphinx' / 'jupyter_cache')
+nb_execution_raise_on_error = True # A failing notebook fails the build.
+nb_execution_timeout = 120 # Seconds per cell.
+
+# -- Options for sphinxcontrib-mermaid ---------------------------------------
+# https://sphinxcontrib-mermaid-demo.readthedocs.io/
+# The diagrams in docs/source/uml are created with `tox -e docs-uml`.
 
 # -- Third-Party extensions configuration ------------------------------------
 ##############################################################################

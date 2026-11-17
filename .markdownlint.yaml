@@ -1,0 +1,10 @@
+# Configuration for markdownlint (pre-commit hook `markdownlint-fix`).
+# Rules: https://github.com/DavidAnson/markdownlint/blob/main/doc/Rules.md
+default: true
+
+# Line length: same limit as for Python code (ruff line-length), ignore
+# code blocks and tables.
+MD013:
+  line_length: 120
+  code_blocks: false
+  tables: false
